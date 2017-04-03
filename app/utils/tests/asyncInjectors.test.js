@@ -47,7 +47,7 @@ describe('asyncInjectors', () => {
       const { injectReducer, injectSagas } = getAsyncInjectors(store);
 
       injectReducer('test', reducer);
-      injectSagas(sagas);
+      injectSagas('test', sagas);
 
       const actual = store.getState().get('test');
       const expected = initialState.merge({ reduced: 'yup' });
@@ -141,7 +141,7 @@ describe('asyncInjectors', () => {
       it('given a store, it should provide a function to inject a saga', () => {
         const injectSagas = injectAsyncSagas(store);
 
-        injectSagas(sagas);
+        injectSagas('test', sagas);
 
         const actual = store.getState().get('test');
         const expected = initialState.merge({ reduced: 'yup' });
@@ -155,13 +155,13 @@ describe('asyncInjectors', () => {
         const injectSagas = injectAsyncSagas(store);
 
         try {
-          injectSagas({ testSaga });
+          injectSagas('test', { testSaga });
         } catch (err) {
           result = err.name === 'Invariant Violation';
         }
 
         try {
-          injectSagas(testSaga);
+          injectSagas('test', testSaga);
         } catch (err) {
           result = err.name === 'Invariant Violation';
         }

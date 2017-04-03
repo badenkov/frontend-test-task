@@ -14,7 +14,7 @@ const loadModule = (cb) => (componentModule) => {
 
 export default function createRoutes(store) {
   // Create reusable async injectors using getAsyncInjectors factory
-  const { injectReducer, injectSagas } = getAsyncInjectors(store); // eslint-disable-line no-unused-vars
+  const { injectReducer, injectSagas, unjectSagas } = getAsyncInjectors(store); // eslint-disable-line no-unused-vars
 
   return [
     {
@@ -32,6 +32,29 @@ export default function createRoutes(store) {
         });
 
         importModules.catch(errorLoading);
+      },
+    }, {
+      path: '/metrics',
+      name: 'metricsPage',
+      getComponent(nextState, cb) {
+        const importModules = Promise.all([
+          import('containers/MetricsPage/reducer'),
+          import('containers/MetricsPage/sagas'),
+          import('containers/MetricsPage'),
+        ]);
+
+        const renderRoute = loadModule(cb);
+
+        importModules.then(([reducer, sagas, component]) => {
+          injectReducer('metricsPage', reducer.default);
+          injectSagas('metricsPage', sagas.default);
+          renderRoute(component);
+        });
+
+        importModules.catch(errorLoading);
+      },
+      onLeave() {
+        unjectSagas('metricsPage');
       },
     }, {
       path: '*',

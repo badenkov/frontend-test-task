@@ -47,8 +47,9 @@ export function injectAsyncReducer(store, isValid) {
 /**
  * Inject an asynchronously loaded saga
  */
+const loadedSagas = {};
 export function injectAsyncSagas(store, isValid) {
-  return function injectSagas(sagas) {
+  return function injectSagas(namespace, sagas) {
     if (!isValid) checkStore(store);
 
     invariant(
@@ -61,8 +62,18 @@ export function injectAsyncSagas(store, isValid) {
       '(app/utils...) injectAsyncSagas: Received an empty `sagas` array'
     );
 
-    sagas.map(store.runSaga);
+    if (loadedSagas[namespace]) {
+      unjectSagas(namespace);
+    }
+    loadedSagas[namespace] = sagas.map(store.runSaga);
   };
+}
+
+export function unjectSagas(namespace) {
+  if (loadedSagas[namespace]) {
+    loadedSagas[namespace].forEach((saga) => saga.cancel());
+    delete loadedSagas[namespace];
+  }
 }
 
 /**
@@ -74,5 +85,6 @@ export function getAsyncInjectors(store) {
   return {
     injectReducer: injectAsyncReducer(store, true),
     injectSagas: injectAsyncSagas(store, true),
+    unjectSagas,
   };
 }
