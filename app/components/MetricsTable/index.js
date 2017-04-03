@@ -2,6 +2,14 @@ import React, { PropTypes } from 'react';
 import { pure, compose, setPropTypes } from 'recompose';
 import { AutoSizer, Table, Column } from 'react-virtualized';
 import 'react-virtualized/styles.css';
+import MeasurementsColumn from './MeasurementsColumn';
+
+function getRowHeight(rows) {
+  return ({ index }) => {
+    const mCount = rows[index].measurements.length;
+    return 30 * mCount;
+  };
+}
 
 export default compose(
   setPropTypes({
@@ -18,7 +26,7 @@ export default compose(
           width={width}
           rowCount={rows.length}
           rowGetter={({ index }) => rows[index]}
-          rowHeight={30}
+          rowHeight={getRowHeight(rows)}
           scrollToIndex={rows.length - 1}
         >
           <Column
@@ -35,6 +43,7 @@ export default compose(
             width={400}
             label="Measurements"
             dataKey="measurements"
+            cellRenderer={MeasurementsColumn}
           />
         </Table>
       )
